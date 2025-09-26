@@ -20,7 +20,6 @@ common lib-shared -- {{{
     -- , containers
     -- , extra
     -- , lens
-    -- , linear
     -- , mtl
     -- , pcre-heavy
     -- , split
@@ -32,7 +31,10 @@ library
   import: lib-shared
   hs-source-dirs: lib
   exposed-modules: FHPuzz
-  build-depends: diagrams-lib, diagrams-svg
+  build-depends:
+    , diagrams-lib, diagrams-svg
+    , lens
+    , linear
 
 executable fhpuzz-exe
   import: lib-shared

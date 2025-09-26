@@ -2,11 +2,45 @@
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE TypeFamilies              #-}
 
+{-# LANGUAGE TemplateHaskell           #-}
+
 module FHPuzz where
 
 import Prelude hiding (rotate)
+
+import Control.Lens hiding ((#),none,transform)
 import Diagrams.Backend.SVG.CmdLine
 import Diagrams.Prelude
+import Linear.V2
+
+type Pt = V2 Double
+
+data MyLine a = MyLine
+    { _lColor :: Colour a
+    , _pointA :: Pt
+    , _pointB :: Pt
+    } deriving Show
+makeLenses ''MyLine
+
+mkLines color x y angle =
+    traceShow (printf "%6.2f %6.2f" dx dy :: String) $
+    fromVertices [ p2 (x,y) | V2 x y <- take 5 $ cycle cornersXfm ]
+    # strokeLine # lc black # lw ultraThin
+    # translateX dx . translateY dy
+    -- # if color == black then translateX dx . translateY dy else id
+    -- fromOffsets . map r2 $ cornersXfm
+    -- MyLine color <$> cornersXfm <*> drop 1 (cycle corners)
+  where
+    (w,h) = (64,10)
+    corners =
+        [ V2 (-w/2) (-h/2)
+        , V2 ( w/2) (-h/2)
+        , V2 ( w/2) ( h/2)
+        , V2 (-w/2) ( h/2)
+        ]
+    cornersXfm = transform t <$> corners
+    V2 dx dy:_ = cornersXfm
+    t = rotation angle
 
 boxes :: Diagram B
 boxes = position
@@ -26,11 +60,13 @@ boxes = position
     , mk orange 777  692 $   0
     , mk orange 585 1035 $   0
     , mk orange 893  911 $  30
+    , mk black  467  331 $  39
     ]
   where
     mk color x y angle =
         ( p2 (x,-y)
-        , rect 64 10 # lw none # fc color # rotate r )
+        , mkLines color x y r )
+        -- , rect 64 10 # lw none # fc color # rotate r )
       where
         r = (-angle) @@ deg
 
