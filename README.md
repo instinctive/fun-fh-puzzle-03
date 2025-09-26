@@ -1,3 +1,3 @@
 # FHPuzz
 
-Hello world!
+Solution to Frosthaven Puzzle #3. In progress...
