@@ -22,14 +22,19 @@ data MyLine a = MyLine
     } deriving Show
 makeLenses ''MyLine
 
-mkLines color x y angle =
-    traceShow (printf "%6.2f %6.2f" dx dy :: String) $
-    fromVertices [ p2 (x,y) | V2 x y <- take 5 $ cycle cornersXfm ]
-    # strokeLine # lc black # lw ultraThin
-    # translateX dx . translateY dy
-    -- # if color == black then translateX dx . translateY dy else id
-    -- fromOffsets . map r2 $ cornersXfm
-    -- MyLine color <$> cornersXfm <*> drop 1 (cycle corners)
+-- bbox 1477x1218
+
+-- rays 1224
+
+-- 294
+-- 417
+-- 539
+-- 662
+-- 785
+-- 907
+
+rotatedBoxCorners r =
+    transform (rotation r) <$> corners
   where
     (w,h) = (64,10)
     corners =
@@ -38,9 +43,11 @@ mkLines color x y angle =
         , V2 ( w/2) ( h/2)
         , V2 (-w/2) ( h/2)
         ]
-    cornersXfm = transform t <$> corners
-    V2 dx dy:_ = cornersXfm
-    t = rotation angle
+
+mkBox corners@(first@(V2 dx dy):_) =
+    fromVertices [ p2 (x,y) | V2 x y <- corners <> [first] ]
+    # strokeLine # lc red # lw ultraThin
+    # translateX dx . translateY dy
 
 boxes :: Diagram B
 boxes = position
@@ -64,11 +71,9 @@ boxes = position
     ]
   where
     mk color x y angle =
-        ( p2 (x,-y)
-        , mkLines color x y r )
-        -- , rect 64 10 # lw none # fc color # rotate r )
-      where
-        r = (-angle) @@ deg
+        let r = (-angle) @@ deg in
+        ( p2 (x,-y), mkBox $ rotatedBoxCorners r )
+        -- ( p2 (x,-y), rect 64 10 # lw none # fc color # rotate r )
 
 fhpuzzMain :: IO ()
 fhpuzzMain = do
@@ -82,14 +87,3 @@ fhpuzzMain = do
                 # translateX 738
                 # translateY (-609)
         )
-
--- bbox 1477x1218
-
--- rays 1224
-
--- 294
--- 417
--- 539
--- 662
--- 785
--- 907
