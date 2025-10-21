@@ -1,0 +1,17 @@
+https://claude.ai/share/e89f4078-ebed-4d08-be44-4826752da503
+
+INITIAL PROMPT
+
+I'd like you to write a python program for me. This program will read in a specification that includes a bounding box, a set of colored boxes, and a set of rays.
+
+The bounding box will be an x-axis width and a y-axis height from the (0,0) point.
+
+The colored boxes will all have the same x-axis width and y-axis height, and individual boxes will be specified in terms of their center point and their degrees of rotation about that center point.
+
+The rays will be specified by their starting point. All rays begin as the color white and start in the direction of the negative y-axis.
+
+Conceptually, each ray will travel until it hits a colored box. That will define a colored line segment. The ray will then "bounce" off the box, assume the color of the box, and repeat this process until the ray intersects the bounding box, which will define the final line segment for that ray.
+
+Your program should read in the specification, and output all the colored line segments.
+
+Please ask me if anything is unclear.
