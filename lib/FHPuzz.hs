@@ -15,12 +15,18 @@ import Linear.V2
 
 type Pt = V2 Double
 
+showPt (V2 x y) = printf "V2 %6.2f %6.2f" x y :: String
+
 data MyLine a = MyLine
     { _lColor :: Colour a
     , _pointA :: Pt
     , _pointB :: Pt
-    } deriving Show
+    }
 makeLenses ''MyLine
+
+instance Show (MyLine a) where
+    show MyLine{..} = 
+        printf "MyLine (%s) (%s)" (showPt _pointA) (showPt _pointB) :: String
 
 -- bbox 1477x1218
 
@@ -50,7 +56,7 @@ mkBox corners@(first@(V2 dx dy):_) =
     # translateX dx . translateY dy
 
 boxes :: Diagram B
-boxes = position
+( boxes, myLines ) = bimap position concat $ unzip
     [ mk  green 611   82 $   0
     , mk  green 798  421 $  30
     , mk purple 604  220 $ -30
@@ -71,12 +77,21 @@ boxes = position
     ]
   where
     mk color x y angle =
-        let r = (-angle) @@ deg in
-        ( p2 (x,-y), mkBox $ rotatedBoxCorners r )
+        -- | color == black && 
+        --     traceShow ("corners",corners)
+
+        ( ( p2 (x,-y), mkBox corners )
+        , MyLine color <$> aa <*> bb )
         -- ( p2 (x,-y), rect 64 10 # lw none # fc color # rotate r )
+      where
+        r = (-angle) @@ deg
+        corners = rotatedBoxCorners r
+        aa = (+ V2 x (-y)) <$> corners
+        bb = take 4 . drop 1 $ aa <> aa
 
 fhpuzzMain :: IO ()
 fhpuzzMain = do
+    -- traverse_ print myLines
     Right img <- loadImageEmb "full.png"
     mainWith
         (
